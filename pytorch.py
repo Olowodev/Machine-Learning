@@ -65,24 +65,24 @@ torch.manual_seed(42)
 #create an instance of the model (this is a subclass of nn.Module)
 model_0 = LinearRegressionModel()
 
-# #check out the parameters
-# list(model_0.parameters())
-# model_0.state_dict()
+#check out the parameters
+list(model_0.parameters())
+model_0.state_dict()
 
-# with torch.inference_mode():
-#     y_preds = model_0(X_test)
+with torch.inference_mode():
+    y_preds = model_0(X_test)
 
-# y_preds
-# # plot_predictions(predictions=y_preds)
+y_preds
+# plot_predictions(predictions=y_preds)
 
 
-# #train model - the whole idea of training is for a model to move from unknown parameters to know or poor representation to good
+#train model - the whole idea of training is for a model to move from unknown parameters to know or poor representation to good
 
-# #set up a loss function
-# loss_fn = nn.L1Loss()
+#set up a loss function
+loss_fn = nn.L1Loss()
 
-# #set up an optimizer
-# optimizer = optim.SGD(params=model_0.parameters(), lr=0.01)
+#set up an optimizer
+optimizer = optim.SGD(params=model_0.parameters(), lr=0.01)
 
 
 torch.manual_seed(42)
