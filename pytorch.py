@@ -1,6 +1,15 @@
+from pathlib import Path
+
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from torch import nn, optim
+
+MODEL_PATH = Path("models")
+MODEL_PATH.mkdir(parents=True, exist_ok=True)
+
+MODEL_NAME = "pytorch_linearRegrression_model.pth"
+MODEL_SAVE_PATH = MODEL_PATH / MODEL_NAME
 
 #create known parameters
 weight = 0.7
@@ -12,7 +21,7 @@ start = 0
 end = 1
 step = 0.02
 X = torch.arange(start, end, step).unsqueeze(dim=1)
-y = weight * X * bias
+y = weight * X + bias
 
 #the input and output
 X[:10], y[:10]
@@ -87,7 +96,11 @@ optimizer = optim.SGD(params=model_0.parameters(), lr=0.01)
 
 torch.manual_seed(42)
 #An epoch is one loop through the data
-epochs = 1
+epochs = 1000
+
+epoch_count = []
+loss_values = []
+test_loss_values = []
 
 # 0. loop through the data
 for epoch in range(epochs):
@@ -98,7 +111,7 @@ for epoch in range(epochs):
 
     #2. calculate the loss
     loss = loss_fn(y_pred, y_train)
-    print("Loss:", loss)
+    # print("Loss:", loss)
 
     #3. Optimizer zero grad
     optimizer.zero_grad()
@@ -110,9 +123,30 @@ for epoch in range(epochs):
     optimizer.step() # by default how optimizer changes will accumulate through the loop so... we have to zero them above in ste 3 first
 
     ### Testing
-    # model_0.eval() # turns off gradient tracking
+    model_0.eval() # turns off gradient tracking
 
-    # print(model_0.state_dict())
-    # plot_predictions(predictions=y_pred)
+    with torch.inference_mode():
+        test_pred = model_0(X_test)
+        test_loss = loss_fn(test_pred, y_test)
 
-print(model_0.state_dict())
+
+    if epoch % 10 == 0:
+        epoch_count.append(epoch)
+        loss_values.append(loss)
+        test_loss_values.append(test_loss)
+        print(f"Epoch: {epoch} | Loss: {loss} | Test loss: {test_loss}")
+        print(model_0.state_dict())
+        # plot_predictions(predictions=test_pred)
+
+# print(test_pred)
+plot_predictions(predictions=test_pred)
+print(f"Saving model to: {MODEL_SAVE_PATH}")
+torch.save(obj=model_0.state_dict(), f=MODEL_SAVE_PATH)
+# print(model_0.state_dict())
+# plt.plot(epoch_count, np.array(torch.tensor(loss_values).numpy()), label="Train loss")
+# plt.plot(epoch_count, test_loss_values, label="Test loss")
+# plt.title("Training and test loss curves")
+# plt.ylabel("Loss")
+# plt.xlabel("Epochs")
+# plt.legend()
+# plt.show()
